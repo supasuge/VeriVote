@@ -1,0 +1,5 @@
+key = """-----BEGIN PUBLIC KEY-----
+MCowBQYDK2VwAyEA583x+/R07VfAElenZcGDzkYGe5dDK2sLd8PENZJTSyo=
+-----END PUBLIC KEY-----
+"""
+
