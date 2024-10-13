@@ -14,7 +14,5 @@ def create_app():
     logging.basicConfig(level=logging.INFO)
     app.logger.setLevel(logging.INFO)
 
-    from app.routes import main
-    app.register_blueprint(main)
 
     return app

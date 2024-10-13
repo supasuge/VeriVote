@@ -18,6 +18,7 @@ class AES_CBC_HMAC:
         self.AES_KEY = sha_512[32:]   # 256-bit key for AES-256
         self.block_size = AES.block_size
 
+
     def encrypt(self, raw):
         # Ensure the plaintext is bytes
         if isinstance(raw, str):

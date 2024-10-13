@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from app.models import Voter, Vote, Block, db
 from app import create_app
 import hashlib
-from app.blockchain import Block as BlockchainBlock
+from app.utils.blockchain import Block as BlockchainBlock
 from app.voter import submit_vote
 from app.homomorphic import Paillier
 from app.ecc_util import Ed25519
@@ -28,7 +28,7 @@ def register():
     db.session.commit()
     KEY = bytes.fromhex(hashlib.sha256(private_key.private_bytes_raw()).hexdigest())
     cipher = AES_CBC_HMAC(KEY)
-    
+    plaintext
     return jsonify({
         'message': 'Voter registered successfully!',
         'fingerprint': voter_fingerprint,
@@ -70,18 +70,95 @@ def cast_vote():
     return jsonify({'message': 'Vote submitted successfully!', 'vote_id': vote.id})
 
 
+@app.route('/vote', methods=['POST'])
+def cast_vote():
+    data = request.get_json()
+    voter_public_key_hex = data['public_key']
+    vote = int(data['vote'])
+    signature_hex = data['signature']
+    R_hex = data['R']
+    s_hex = data['s']
+
+    voter_public_key_bytes = bytes.fromhex(voter_public_key_hex)
+    signature = bytes.fromhex(signature_hex)
+    R_bytes = bytes.fromhex(R_hex)
+    s = int(s_hex, 16)
+
+    # Find the voter
+    voter = Voter.query.filter_by(public_key=voter_public_key_hex).first()
+    if not voter:
+        return jsonify({'error': 'Voter not found'}), 400
+
+    # Encrypt the vote
+    encrypted_vote = paillier.encrypt(vote)
+
+    # Verify the signature
+    if not ecdsa.verify(signature, str(encrypted_vote).encode(), voter_public_key_bytes):
+        return jsonify({'error': 'Invalid signature'}), 400
+
+    # Verify Schnorr proof
+    if not schnorr_verify(voter_public_key_bytes, R_bytes, s):
+        return jsonify({'error': 'Invalid Schnorr proof'}), 400
+
+    # Save the vote
+    vote = Vote(
+        voter_id=voter.id,
+        encrypted_vote=str(encrypted_vote),
+        R=R_hex,
+        s=s_hex,
+        signature=signature_hex
+    )
+    db.session.add(vote)
+    db.session.commit()
+
+    # Add the vote to a new block in the blockchain
+    new_block = blockchain.add_block({
+        'vote_id': vote.id,
+        'encrypted_vote': str(encrypted_vote),
+        'voter_id': voter.id
+    })
+
+    # Save the block information to the database
+    block = Block(
+        block_hash=new_block.hash,
+        previous_block_hash=new_block.previous_hash
+    )
+    db.session.add(block)
+    db.session.commit()
+
+    # Associate the vote with the block
+    vote.block_id = block.id
+    db.session.commit()
+
+    return jsonify({
+        'message': 'Vote submitted successfully!',
+        'vote_id': vote.id,
+        'block_hash': new_block.hash
+    })
 
 @app.route('/tally', methods=['GET'])
 def tally_votes():
     votes = Vote.query.all()
-    encrypted_sum = paillier.encrypt(0)
     
+    # Initialize the tally
+    tally = paillier.encrypt(0)
+    
+    # Add up all the votes
     for vote in votes:
-        encrypted_sum = paillier.add(encrypted_sum, vote.encrypted_vote)
+        encrypted_vote = int(vote.encrypted_vote)
+        tally = paillier.add(tally, encrypted_vote)
     
-    final_tally = paillier.decrypt(encrypted_sum)
-    
+    # Decrypt the final tally
+    final_tally = paillier.decrypt(tally)
+
     return jsonify({'tally': final_tally})
+
+@app.route('/blockchain/validate', methods=['GET'])
+def validate_blockchain():
+    is_valid = blockchain.is_chain_valid()
+    return jsonify({'is_valid': is_valid})
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
