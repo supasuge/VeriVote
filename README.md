@@ -1,5 +1,9 @@
 # VeriVote
 
+***
+Submission at Hack Dearborn 2024 Rewind Reality
+***
+
 Note: This project is a work in progress.
 
 Secure blockchain voting system using ZKP's for secure anonymous user registration and authentication as well as homomorphic encryption used for cast votes.
