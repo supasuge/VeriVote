@@ -5,7 +5,8 @@ import os
 from ecdsa import SigningKey, NIST256p
 import logging
 from Crypto.Util.number import bytes_to_long
-
+from app.crypto.homomorphic import Paillier
+from secrets import randbelow
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
@@ -93,8 +94,6 @@ class VotingClient:
         Returns:
             bool: True if the vote was cast successfully, False otherwise.
         """
-        if isinstance(vote, str):
-            vote = vote.encode()
         if not self.private_key or not self.public_key:
             print("Private key not decrypted. Please decrypt the private key first.")
             return False
@@ -104,6 +103,7 @@ class VotingClient:
         encrypted_vote = hashlib.sha256(vote.encode()).hexdigest()
 
         # Sign the encrypted vote
+
         signature = self.private_key.sign(encrypted_vote.encode())
 
         # Generate Schnorr proof
@@ -120,11 +120,18 @@ class VotingClient:
             'R': R_bytes.hex(),  # Convert bytes to hex string
             's': s_hex           # Hex string without '0x'
         }
+
+        # Debug: Verify that all fields are strings
+        for key, value in vote_data.items():
+            if not isinstance(value, str):
+                print(f"Error: Field '{key}' is not a string. Type: {type(value)}")
+                return False
+
         print(f"Prepared Vote Data: {json.dumps(vote_data, indent=2)}")  # Log vote data
 
         # Send the vote
         response = self.session.post(f"{BASE_URL}/vote", json=vote_data)
-        if response.status_code == 201:
+        if response.status_code == 200:
             data = response.json()
             print(f"Vote cast successfully. Vote ID: {data['vote_id']}")
             return True
@@ -178,11 +185,17 @@ from ecdsa import SigningKey, VerifyingKey, NIST256p
 from hashlib import sha256
 
 def point_to_bytes(point):
+    """
+    Convert an elliptic curve point to bytes.
+    """
     x_bytes = point.x().to_bytes(32, 'big')
     y_bytes = point.y().to_bytes(32, 'big')
     return x_bytes + y_bytes
 
 def bytes_to_point(curve, data):
+    """
+    Convert bytes back to an elliptic curve point.
+    """
     x = int.from_bytes(data[:32], 'big')
     y = int.from_bytes(data[32:], 'big')
     return curve.point(x, y)  # Corrected: Removed extra '.curve'
@@ -196,7 +209,7 @@ def schnorr_proof(private_key):
     """
     G = NIST256p.generator
     order = G.order()
-    k = SigningKey.generate(curve=NIST256p).privkey.secret_multiplier
+    k = randbelow(order - 1) + 1  # Secure random in [1, order-1]
     R_point = k * G
     R_bytes = point_to_bytes(R_point)
     public_key = private_key.verifying_key
@@ -223,11 +236,6 @@ def schnorr_verify(public_key, R_bytes, s):
     challenge_data = R_bytes + P_bytes
     c = int.from_bytes(sha256(challenge_data).digest(), 'big') % order
 
-    # Debugging: Check type of public_key.pubkey
-    print(f"Type of public_key.pubkey: {type(public_key.pubkey)}")
-    if not hasattr(public_key.pubkey, 'point'):
-        raise AttributeError("public_key.pubkey does not have a 'point' attribute.")
-
     sG = s * G
     cP = c * public_key.pubkey.point
     R_plus_cP = R_point + cP
@@ -253,7 +261,7 @@ def main():
         return
 
     # Step 3: Cast a vote
-    if not client.cast_vote(int("1")):
+    if not client.cast_vote("1"):
         return
 
     # Step 4: Get the current tally

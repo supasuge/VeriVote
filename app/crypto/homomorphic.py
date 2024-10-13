@@ -16,7 +16,9 @@ class Paillier:
     def encrypt(self, m):
         if isinstance(m, str):
             m = bytes_to_long(m.encode())
-        
+        elif isinstance(m, bytes):
+            m = int(m.hex(), 16)
+
         n_sq = self.n_sq
         # Choose random r in [1, n-1]
         r = randint(1, self.n - 1)

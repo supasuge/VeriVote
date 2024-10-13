@@ -18,7 +18,7 @@ def submit_vote(voter_private_key, voter_public_key, encrypted_vote):
         'encrypted_vote': encrypted_vote,
         'R': R_bytes.hex(),
         's': hex(s),
-        'signature': voter_private_key.sign(encrypted_vote.encode()).hex()
+        'signature': voter_private_key.sign(encrypted_vote).hex()
     }
     linked_vote_data = link_votes(previous_hash, vote_data)
 
