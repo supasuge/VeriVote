@@ -1,7 +1,9 @@
 # VeriVote
 
 ***
-Submission at Hack Dearborn 2024 Rewind Reality
+**Submission at Hack Dearborn 2024 Rewind Reality**
+- Author: [supasuge - Evan Pardon](https://github.com/supasuge)
+
 ***
 
 Note: This project is a work in progress.
