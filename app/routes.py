@@ -1,24 +1,19 @@
-# app.py
+# app/routes.py
 
 from flask import request, jsonify
+from app import app, db
+from app.models import Voter, Vote
+from app.utils.blockchain import BlockchainBlock as Block
+from app.crypto.homomorphic import Paillier
+from app.crypto.ecc_util import ECDSA_NIST256p
+from app.crypto.schnorr import schnorr_proof, schnorr_verify
+from app.crypto.aes_util import AES_CBC_HMAC
+from app.voting.voter import submit_vote
 import hashlib
-import sys
-import os
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-from utils.blockchain import BlockchainBlock as Block
-from models import Voter, Vote, db  # Adjusted import
-from crypto.homomorphic import Paillier
-from crypto.ecc_util import ECDSA_NIST256p  # Adjusted class name
-from crypto.schnorr import schnorr_proof, schnorr_verify
-from crypto.aes_util import AES_CBC_HMAC
-from __init__ import create_app
-
-app = create_app()
-blockchain = []
 paillier = Paillier()
 ecdsa = ECDSA_NIST256p()
+blockchain = []
 
 with app.app_context():
     db.create_all()
@@ -73,13 +68,12 @@ def cast_vote():
     R, s = schnorr_proof(ecdsa.private_key)
 
     # Submit the vote
-    from voting.voter import submit_vote  # Import here to avoid circular import
     vote = submit_vote(ecdsa.private_key, ecdsa.public_key, encrypted_vote)
 
     # Add the vote to a new block
     new_block = Block(
         index=len(blockchain),
-        timestamp=vote.timestamp,
+        timestamp=vote.timestamp.timestamp(),
         data={'vote_id': vote.id, 'encrypted_vote': encrypted_vote},
         previous_hash=blockchain[-1].hash if blockchain else None
     )
@@ -87,5 +81,4 @@ def cast_vote():
 
     return jsonify({'message': 'Vote submitted successfully!', 'vote_id': vote.id})
 
-if __name__ == '__main__':
-    app.run(debug=True)
+

@@ -27,6 +27,7 @@ class BlockchainBlock:
             self.nonce += 1
             self.hash = self.compute_hash()
 
+
 class Blockchain:
     def __init__(self):
         self.chain = []

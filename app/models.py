@@ -1,3 +1,5 @@
+# app/models.py
+
 from app import db
 from sqlalchemy.sql import func
 
@@ -5,6 +7,7 @@ class Voter(db.Model):
     __tablename__ = 'voters'
     id = db.Column(db.Integer, primary_key=True)
     public_key = db.Column(db.String, nullable=False)
+    encrypted_private_key = db.Column(db.Text, nullable=False)
     fingerprint = db.Column(db.String, nullable=False)
     registration_time = db.Column(db.DateTime, default=func.now())
     is_registered = db.Column(db.Boolean, default=False)
@@ -17,7 +20,7 @@ class Vote(db.Model):
     __tablename__ = 'votes'
     id = db.Column(db.Integer, primary_key=True)
     voter_id = db.Column(db.Integer, db.ForeignKey('voters.id'), nullable=False)
-    block_id = db.Column(db.Integer, db.ForeignKey('blocks.id'), nullable=False)
+    block_id = db.Column(db.Integer, db.ForeignKey('blocks.id'), nullable=True)
     encrypted_vote = db.Column(db.Text, nullable=False)
     R = db.Column(db.Text, nullable=False)
     s = db.Column(db.Text, nullable=False)
