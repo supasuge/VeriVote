@@ -22,3 +22,14 @@ Secure blockchain voting system using ZKP's for secure anonymous user registrati
 
 - Tallying
     - Homomorphically aggregate encrypted botes usin Paillier's additive property.
+
+
+
+`git clone https://github.com/supasuge/.....`
+`cd <repo name>`
+`cd app/`
+`python3 -m venv env`
+`source env/bin/activate`
+`pip install -r requirements.txt`
+`python3 app.py` - Application server
+`python3 client.py` - Example of how to interact with server.
