@@ -1,14 +1,13 @@
-# voting/voter.py
-
-import hashlib
-from ..crypto.schnorr import schnorr_proof  # Use relative import
+from app.models.models import Voter  # Ensure you import the Voter model
 
 def submit_vote(voter_private_key, voter_public_key, encrypted_vote):
-    # Import models here to avoid circular import
-    from ..models.models import Vote, db  # Adjusted import
+    # Query the Voter based on the public key
+    voter = Voter.query.filter_by(public_key=voter_public_key.to_string().hex()).first()
+    if not voter:
+        raise Exception("Voter not found")
 
     # Generate Schnorr proof
-    R, s = schnorr_proof(voter_private_key)
+    R_bytes, s = schnorr_proof(voter_private_key)
 
     # Create vote hash chain
     last_vote = Vote.query.order_by(Vote.id.desc()).first()
@@ -17,15 +16,15 @@ def submit_vote(voter_private_key, voter_public_key, encrypted_vote):
     # Create vote data and link hashes
     vote_data = {
         'encrypted_vote': encrypted_vote,
-        'R': R.hex(),
+        'R': R_bytes.hex(),
         's': hex(s),
         'signature': voter_private_key.sign(encrypted_vote.encode()).hex()
     }
     linked_vote_data = link_votes(previous_hash, vote_data)
 
-    # Save the vote
+    # Save the vote with the correct voter_id
     vote = Vote(
-        voter_id=voter_public_key,
+        voter_id=voter.id,  # Correct: Assigning integer ID
         encrypted_vote=encrypted_vote,
         R=linked_vote_data['R'],
         s=linked_vote_data['s'],
@@ -37,6 +36,8 @@ def submit_vote(voter_private_key, voter_public_key, encrypted_vote):
     db.session.commit()
 
     return vote
+
+
 
 def generate_vote_hash(vote_data):
     vote_str = f"{vote_data['encrypted_vote']}{vote_data['R']}{vote_data['s']}{vote_data['signature']}"

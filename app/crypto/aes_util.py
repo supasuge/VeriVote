@@ -1,3 +1,5 @@
+# app/crypto/aes_util.py
+
 import hashlib
 import hmac
 from Crypto.Cipher import AES
@@ -5,9 +7,9 @@ from Crypto.Random import get_random_bytes
 from Crypto.Util.Padding import pad, unpad
 import json
 import base64
-
+import os
 class AES_CBC_HMAC:
-    def __init__(self, key):
+    def __init__(self, key=b'21210d97c7a20225bac135bacc3c1d5f'):
         # Ensure the key is bytes
         if isinstance(key, str):
             key = key.encode('utf-8')
@@ -17,7 +19,6 @@ class AES_CBC_HMAC:
         self.HMAC_KEY = sha_512[:32]  # 256-bit key for HMAC-SHA256
         self.AES_KEY = sha_512[32:]   # 256-bit key for AES-256
         self.block_size = AES.block_size
-
 
     def encrypt(self, raw):
         # Ensure the plaintext is bytes
@@ -65,19 +66,11 @@ class AES_CBC_HMAC:
         # Unpad the plaintext
         raw = unpad(raw_padded, self.block_size)
         # Return as JSON string
-        return json.dumps({"plaintext": raw.decode('utf-8')})
+        return json.dumps({"plaintext": raw.hex()})
 
-# Example usage
-#key = b'secret_master_key'
-#aes_hmac = AES_CBC_HMAC(key)
 
-#plaintext = "This is a secret message."
-#print("Original plaintext:", plaintext)
-
-# Encrypt
-#ciphertext_json = aes_hmac.encrypt(plaintext)
-#print("Ciphertext (JSON):", ciphertext_json)
-
-# Decrypt
-#decrypted_plaintext_json = aes_hmac.decrypt(ciphertext_json)
-#print("Decrypted plaintext (JSON):", decrypted_plaintext_json)
+KEY = os.urandom(32).hex()
+aes = AES_CBC_HMAC(KEY)
+ct1 = aes.encrypt("Hello, World!")
+pt1 = aes.decrypt(ct1)
+print(f"CT1: {KEY}\nPT1: {ct1}\npt1: {pt1}")

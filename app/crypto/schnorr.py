@@ -1,3 +1,5 @@
+# app/crypto/schnorr.py
+
 from ecdsa import SigningKey, VerifyingKey, NIST256p
 from hashlib import sha256
 

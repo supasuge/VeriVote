@@ -1,6 +1,7 @@
+# app/utils/blockchain.py
+from time import time
 import hashlib
 import json
-from time import time
 
 class BlockchainBlock:
     def __init__(self, index, timestamp, data, previous_hash):
@@ -26,7 +27,6 @@ class BlockchainBlock:
         while not self.hash.startswith(target):
             self.nonce += 1
             self.hash = self.compute_hash()
-
 
 class Blockchain:
     def __init__(self):
@@ -65,5 +65,3 @@ class Blockchain:
                 return False
 
         return True
-
-

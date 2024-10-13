@@ -1,0 +1,1 @@
+# voting/__init__.py
