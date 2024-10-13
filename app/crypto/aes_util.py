@@ -68,9 +68,3 @@ class AES_CBC_HMAC:
         # Return as JSON string
         return json.dumps({"plaintext": raw.hex()})
 
-
-KEY = os.urandom(32).hex()
-aes = AES_CBC_HMAC(KEY)
-ct1 = aes.encrypt("Hello, World!")
-pt1 = aes.decrypt(ct1)
-print(f"CT1: {KEY}\nPT1: {ct1}\npt1: {pt1}")
