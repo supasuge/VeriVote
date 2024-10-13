@@ -1,6 +1,4 @@
 import sys
-from random import randint
-from Crypto.Util.number import getPrime, inverse, long_to_bytes
 import hashlib
 import hmac
 from Crypto.Cipher import AES
@@ -9,11 +7,8 @@ from Crypto.Util.Padding import pad, unpad
 import json
 import base64
 from ecdsa import SigningKey, VerifyingKey, NIST256p
-from hashlib import sha256
 import os
 import sys
-from random import randint
-from Crypto.Util.number import getPrime, inverse, long_to_bytes
 key = os.urandom(16).hex()
 
 class Paillier:
@@ -74,11 +69,9 @@ class Paillier:
     def get_keys(self):
         return self.pub, self.priv
 
-def toStr(msg):
-    return long_to_bytes(int(msg))
 
 
-# AES-CBC-HMAC Class (unchanged from your code)
+# AES-CBC-HMAC  - Can easily be substituted for a CMAC tag.
 class AES_CBC_HMAC:
     def __init__(self, key):
         # Ensure the key is bytes
@@ -143,14 +136,14 @@ class AES_CBC_HMAC:
 # ECDSA Key Handling Class using NIST256p Curve
 class ECDSA_NIST256p:
     def __init__(self):
-        self.private_key = None
-        self.public_key = None
+        self.private_key = None # Private key (Secret multiplier)
+        self.public_key = None  # Public (X, Y) ECC pointa
 
     def generate_keypair(self):
         """
         Generate a new ECDSA key pair using NIST256p curve.
         """
-        self.private_key = SigningKey.generate(curve=NIST256p)
+        self.private_key: SigningKey = SigningKey.generate(curve=NIST256p)
         self.public_key = self.private_key.verifying_key
         return self.private_key, self.public_key
 
