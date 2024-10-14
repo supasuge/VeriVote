@@ -1,22 +1,20 @@
 # VeriVote
 
-***
++++
+
 **Submission at Hack Dearborn 2024 Rewind Reality**
 - Author: [supasuge - Evan Pardon](https://github.com/supasuge)
 
-***
++++
 
-Note: This project is a work in progress.
-
-Secure blockchain voting system using ZKP's for secure anonymous user registration and authentication as well as homomorphic encryption used for cast votes.
-
+Secure blockchain-like voting system 
 
 - User registers
     - Generates keys
 
 - Cast vote
     - Voter generates ZKP that:
-        - They know th plaintext of the encrypted vote, and they own the private key corresponding to their public key. 
+        - They know there own unique PII that would normally be submitted to a ballot plaintext of the encrypted vote, and they own the private key corresponding to their public key. 
 - Signing vote
     - Voter signs encrypted vote and generates ZKP with private ECC key.
 
@@ -30,7 +28,7 @@ Secure blockchain voting system using ZKP's for secure anonymous user registrati
         - Private key belong's them, and they know the value of the encrypted vote.
 
 - Tallying
-    - Homomorphically aggregate encrypted botes usin Paillier's additive property.
+    - Aggregate encrypted votes using Paillier's additive property.
 
 
 ```bash
