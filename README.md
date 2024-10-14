@@ -1,11 +1,13 @@
 # VeriVote
 
-+++
-**Submission at Hack Dearborn 2024 Rewind Reality**
-Author: [supasuge - Evan Pardon](https://github.com/supasuge)
-+++
+***
 
-Secure blockchain-like voting system 
+- **Submission at Hack Dearborn 2024 Rewind Reality**
+- Author: [supasuge - Evan Pardon](https://github.com/supasuge)
+
+---
+
+Secure blockchain-like voting system concept
 
 - User registers
     - Generates keys
