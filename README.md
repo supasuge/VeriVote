@@ -16,7 +16,7 @@ Secure blockchain-like voting system concept
     - Voter generates ZKP that:
         - They know there own unique PII that would normally be submitted to a ballot plaintext of the encrypted vote, and they own the private key corresponding to their public key. 
 - Signing vote
-    - Voter signs encrypted vote and generates ZKP with private ECC key.
+    - Voter signs encrypted vote and generates ZKP + Digital signature with private ECC key.
 
 - Submitting vote
     - Encrypted vote, ZKP, and signature submitted to the blockchain.
