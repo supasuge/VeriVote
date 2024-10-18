@@ -5,8 +5,8 @@
 - **Submission at Hack Dearborn 2024 Rewind Reality**
 - Author: [supasuge - Evan Pardon](https://github.com/supasuge)
 
-> [!INFO]
-> This is an incomplete project and doesn't work properly nor does it possess "secure" functionality, although that was the end goal... Only so much you can do in 24-hours
+> Note: This is an incomplete project and doesn't work properly nor does it possess "secure" functionality, although that was the end goal... Only so much you can do in 24-hours
+
 ---
 
 Secure blockchain-like voting system concept
